@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/layout/nbnotification_foreground_notification_test.xml" value="0.25790754257907544" />
+        <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/layout/notification_item.xml" value="0.221875" />
+        <entry key="..\:/androidProject/github/NBNotification/app/src/main/res/layout/activity_main.xml" value="0.221875" />
+        <entry key="..\:/androidProject/github/NBNotification/app/src/main/res/layout/notification_item.xml" value="0.18333333333333332" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
