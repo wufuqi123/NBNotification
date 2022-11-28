@@ -58,6 +58,11 @@ open class ForegroundNotification : ForegroundNotificationInterface {
 
     private lateinit var mLayoutInflater: LayoutInflater
 
+
+    fun getActivity(): Activity? {
+        return mActivity
+    }
+
     @SuppressLint("InflateParams")
     @CallSuper
     override fun onCreate(context: Context) {
@@ -115,7 +120,7 @@ open class ForegroundNotification : ForegroundNotificationInterface {
         activity.window.decorView.post {
             onCreate(activity)
             mContentView = onCreateView(mLayoutInflater, mContentViewParent!!)
-            setLayoutParams()
+            getGlobalVisibleRect(mGlobalVisibleRect)
             mContentViewParent!!.visibility = View.INVISIBLE
             (activity.window.decorView as ViewGroup).addView(mRootView)
             mContentView!!.post {
@@ -186,9 +191,8 @@ open class ForegroundNotification : ForegroundNotificationInterface {
                 mContentView!!.stopAction()
                 isAnimationRunning = false
                 lastDownY = event.rawY
-                val r = Rect()
-                mContentView!!.getGlobalVisibleRect(r)
-                isDown = r.contains(event.rawX.toInt(), event.rawY.toInt())
+                getGlobalVisibleRect(mGlobalVisibleRect)
+                isDown = event.x >= mGlobalVisibleRect.left && event.x <= mGlobalVisibleRect.right
                 currMoveOffset = 0f
             }
             MotionEvent.ACTION_MOVE -> {
@@ -201,7 +205,6 @@ open class ForegroundNotification : ForegroundNotificationInterface {
                 if (currMoveOffset >= maxMoveOffset) {
                     onMove(offsetY)
                 }
-
 
             }
             MotionEvent.ACTION_UP -> {
@@ -229,39 +232,42 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     }
 
 
-    private fun setLayoutParams() {
+    private var mGlobalVisibleRect = Rect()
 
-        mContentViewParent!!.layoutParams = ConstraintLayout.LayoutParams(
-            ConstraintLayout.LayoutParams.WRAP_CONTENT,
-            ConstraintLayout.LayoutParams.WRAP_CONTENT
-        )
-        mContentView!!.post {
-//            val r = Rect()
-//            val p = mActivity!!.window.decorView
-//            mContentView!!.getGlobalVisibleRect(r)
 
-            if(mContentView is ViewGroup){
-                var maxR:Rect? = null
-                (mContentView as ViewGroup)!!.forEach {
-                    val r = Rect()
-                    mContentView!!.getGlobalVisibleRect(r)
-                    if(maxR == null){
-                        maxR = r
-                    }else if(r.left < maxR!!.left){
-                        maxR!!.left = r.left
-                    }else if(r.right > maxR!!.right){
-                        maxR!!.right = r.right
+    private fun getGlobalVisibleRect(gvr: Rect) {
+        var r = Rect()
+        r.left = mContentView!!.left
+        r.right = mContentView!!.right
+        r.top = mContentView!!.top
+        r.bottom = mContentView!!.bottom
+
+//        Log.e("wufuqi---", "r... ${r}")
+        if (mContentView is ViewGroup) {
+            var maxR: Rect? = null
+            (mContentView as ViewGroup)!!.forEach {
+                if (maxR == null) {
+                    maxR = Rect()
+                    maxR!!.left = it.left
+                    maxR!!.right = it.right
+                } else {
+                    if (it.left < maxR!!.left && it.left >= 0) {
+                        maxR!!.left = it.left
+                    }
+                    if (it.right > maxR!!.right && it.right <= r.right) {
+                        maxR!!.right = it.right
                     }
                 }
-//                Log.e("wufuqi", "left ${maxR!!.left}  right ${maxR!!.right}")
             }
-//            Log.e("wufuqi", "left ${r.left}  right ${r.right}")
-//            Log.e("wufuqi", "mleft ${mContentView!!.marginLeft}  mright ${mContentView!!.marginRight}")
-//            Log.e("wufuqi", "mleft ${mContentView!!.left}  mright ${mContentView!!.right}")
-//            Log.e("wufuqi", "measuredWidth ${mContentView!!.measuredWidth}  measuredHeight ${mContentView!!.measuredHeight}")
-//            Log.e("wufuqi", "measuredWidth ${p!!.measuredWidth}  measuredHeight ${p!!.measuredHeight}")
+            if (maxR != null) {
+                r = maxR!!
+            }
         }
-
+//        Log.e("wufuqi---", "r ${r}")
+        gvr.left = r.left
+        gvr.right = r.right
+        gvr.top = r.top
+        gvr.bottom = r.bottom
     }
 
 
