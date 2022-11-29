@@ -20,6 +20,7 @@ import androidx.core.view.forEach
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import cn.wufuqi.nbnotification.R
+import cn.wufuqi.nbnotification.utils.ActivityUtils
 import com.wukonganimation.action.ActionManager
 import com.wukonganimation.action.extend.createAction
 import com.wukonganimation.action.extend.stopAction
@@ -139,6 +140,12 @@ open class ForegroundNotification : ForegroundNotificationInterface {
         }
 
     }
+
+    @CallSuper
+    override fun show() {
+        show(ActivityUtils.getTopActivity())
+    }
+
 
     @CallSuper
     override fun hide() {

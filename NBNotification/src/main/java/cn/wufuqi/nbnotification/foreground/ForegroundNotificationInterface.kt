@@ -35,6 +35,9 @@ interface ForegroundNotificationInterface {
     fun show(activity: Activity)
 
     @UiThread
+    fun show()
+
+    @UiThread
     fun hide()
 
 }
