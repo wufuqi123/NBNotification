@@ -1,4 +1,4 @@
-package cn.wufuqi.nbnotification.foreground
+package cn.wufuqi.nbnotification.base.foreground
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -13,22 +13,26 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.Constraints
-import androidx.core.view.contains
 import androidx.core.view.forEach
-import androidx.core.view.marginLeft
-import androidx.core.view.marginRight
+import cn.wufuqi.easytimer.EasyTimer
 import cn.wufuqi.nbnotification.R
 import cn.wufuqi.nbnotification.utils.ActivityUtils
 import com.wukonganimation.action.ActionManager
+import com.wukonganimation.action.chained.SequenceActionBuild
 import com.wukonganimation.action.extend.createAction
 import com.wukonganimation.action.extend.stopAction
 import com.wukonganimation.tween.Easing
 import kotlin.math.abs
 import kotlin.math.min
 
+/**
+ * 前台通知
+ */
 open class ForegroundNotification : ForegroundNotificationInterface {
+
+
+    private val mEasyTimer by lazy { EasyTimer() }
+
     private var mActivity: Activity? = null
     private var mRootView: ViewGroup? = null
     private var mContentViewParent: ViewGroup? = null
@@ -40,14 +44,12 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     var currStatusBarHeight = 0
 
     var isShow: Boolean = false
-        private set
+    private var isStartDestroy: Boolean = false
+
+    override fun isEnable(): Boolean = isShow && !isStartDestroy
 
     var isAnimationRunning = false
         private set
-
-    var time = 500L
-
-    var offsetMoveY = dp2px(20f)
 
     var easing = Easing.outExpo()
 
@@ -60,7 +62,7 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     private lateinit var mLayoutInflater: LayoutInflater
 
 
-    fun getActivity(): Activity? {
+    override fun getActivity(): Activity? {
         return mActivity
     }
 
@@ -100,8 +102,10 @@ open class ForegroundNotification : ForegroundNotificationInterface {
 
     @CallSuper
     override fun onDestroy() {
-
+        stopWait()
     }
+
+    override fun getBottomOffsetMoveY() = 0f
 
     @SuppressLint("ClickableViewAccessibility")
     @CallSuper
@@ -113,6 +117,10 @@ open class ForegroundNotification : ForegroundNotificationInterface {
             )
             return
         }
+        if (isStartDestroy) {
+            return
+        }
+        stopWait()
         isShow = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mActivityStatusBarColor = activity.window.statusBarColor
@@ -127,14 +135,15 @@ open class ForegroundNotification : ForegroundNotificationInterface {
             mContentView!!.post {
                 mContentView!!.y = -mContentView!!.measuredHeight.toFloat()
                 mContentViewParent!!.visibility = View.VISIBLE
-                animationShow()
                 mContentView!!.post {
                     mContentView!!.setOnTouchListener { _, event ->
                         onTouch(event)
                         return@setOnTouchListener true
                     }
                 }
-
+                animationShow {
+                    startWait()
+                }
             }
 
         }
@@ -149,9 +158,12 @@ open class ForegroundNotification : ForegroundNotificationInterface {
 
     @CallSuper
     override fun hide() {
-        if (!isShow) {
+        if (!isShow && isStartDestroy) {
             return
         }
+        isShow = false
+        isStartDestroy = true
+        stopWait()
         animationHide {
             onDestroyView(mContentView!!)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -159,19 +171,37 @@ open class ForegroundNotification : ForegroundNotificationInterface {
             }
             (mActivity!!.window.decorView as ViewGroup).removeView(mRootView)
             onDestroy()
-            isShow = false
+            isStartDestroy = false
+            mActivity = null
         }
     }
 
 
-    private fun getBottomY(): Float = currStatusBarHeight + offsetMoveY
+    private fun getBottomY(): Float = currStatusBarHeight + getBottomOffsetMoveY()
+
+
+    override fun buildAnimationShow(time: Long, bottomY: Float): SequenceActionBuild {
+        return SequenceActionBuild()
+            .moveTo(time, Float.NaN, bottomY, easing)
+    }
+
+    override fun getMoveTime(): Long = 500L
+
+
+    override fun getWaitTime(): Long = 5000L
+
+
+    override fun buildAnimationHide(time: Long, topY: Float): SequenceActionBuild {
+        return SequenceActionBuild()
+            .moveTo(time, Float.NaN, topY, easing)
+    }
 
 
     private fun animationShow(callback: (() -> Unit)? = null) {
         ActionManager.init(mActivity!!.application)
         isAnimationRunning = true
         mContentView!!.createAction()
-            .moveTo(time, Float.NaN, getBottomY(), easing)
+            .sequence(buildAnimationShow(getMoveTime(), getBottomY()))
             .callFunc {
                 isAnimationRunning = false
                 callback?.invoke()
@@ -181,9 +211,15 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     private fun animationHide(callback: (() -> Unit)? = null) {
         isAnimationRunning = true
         val moveTime =
-            (mContentView!!.measuredHeight.toFloat() + mContentView!!.y) / (mContentView!!.measuredHeight.toFloat() + getBottomY()) * time
+            (mContentView!!.measuredHeight.toFloat() + mContentView!!.y) / (mContentView!!.measuredHeight.toFloat() + getBottomY()) * getMoveTime()
         mContentView!!.createAction()
             .moveTo(moveTime.toLong(), Float.NaN, -mContentView!!.measuredHeight.toFloat(), easing)
+            .sequence(
+                buildAnimationHide(
+                    moveTime.toLong(),
+                    -mContentView!!.measuredHeight.toFloat()
+                )
+            )
             .callFunc {
                 isAnimationRunning = false
                 callback?.invoke()
@@ -192,9 +228,10 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     }
 
 
-    fun onTouch(event: MotionEvent) {
+    override fun onTouch(event: MotionEvent) {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                stopWait()
                 mContentView!!.stopAction()
                 isAnimationRunning = false
                 lastDownY = event.rawY
@@ -230,11 +267,33 @@ open class ForegroundNotification : ForegroundNotificationInterface {
         }
     }
 
-    fun onMove(offsetY: Float) {
+    override fun startWait() {
+        startWait(getWaitTime())
+    }
+
+    override fun startWait(waitTime: Long) {
+        startWait(waitTime >= 0, waitTime)
+    }
+
+    override fun startWait(isWait: Boolean, waitTime: Long) {
+        stopWait()
+        if (!isWait) {
+            return
+        }
+        mEasyTimer.scheduleOneUI(waitTime) {
+            hide()
+        }
+    }
+
+    override fun stopWait() {
+        mEasyTimer.unscheduleAll()
+    }
+
+    override fun onMove(offsetY: Float) {
         mContentView!!.y = min(getBottomY(), mContentView!!.y + offsetY)
     }
 
-    fun onClick() {
+    override fun onClick() {
         hide()
     }
 
@@ -249,10 +308,9 @@ open class ForegroundNotification : ForegroundNotificationInterface {
         r.top = mContentView!!.top
         r.bottom = mContentView!!.bottom
 
-//        Log.e("wufuqi---", "r... ${r}")
         if (mContentView is ViewGroup) {
             var maxR: Rect? = null
-            (mContentView as ViewGroup)!!.forEach {
+            (mContentView as ViewGroup).forEach {
                 if (maxR == null) {
                     maxR = Rect()
                     maxR!!.left = it.left
@@ -270,7 +328,6 @@ open class ForegroundNotification : ForegroundNotificationInterface {
                 r = maxR!!
             }
         }
-//        Log.e("wufuqi---", "r ${r}")
         gvr.left = r.left
         gvr.right = r.right
         gvr.top = r.top
@@ -278,7 +335,7 @@ open class ForegroundNotification : ForegroundNotificationInterface {
     }
 
 
-    private fun dp2px(dpValue: Float): Float {
+    fun dp2px(dpValue: Float): Float {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dpValue,

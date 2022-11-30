@@ -69,9 +69,9 @@ object ActivityUtils {
      * @param context
      * @return
      */
-    fun getTopActivityClassName(context: Context): String? {
+    fun getTopActivityClassName(): String? {
         val mActivityManager =
-            context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            getContext()!!.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         if (mActivityManager.getRunningTasks(1) == null) {
             return null
         }
@@ -89,9 +89,9 @@ object ActivityUtils {
     fun getTopActivity(): Activity {
         val activityList = getActivitiesByReflect()
 
-        val topName = getTopActivityClassName(getContext()!!)
+        val topName = getTopActivityClassName()
         activityList.forEach {
-            if(it::class.java.name == topName){
+            if (it::class.java.name == topName) {
                 return it
             }
         }

@@ -3,9 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/drawable/shape_color_fafafa_corner_8.xml" value="0.2145" />
+        <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/drawable/shape_color_ffffff_corner_tl_tr__8.xml" value="0.2145" />
         <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/layout/nbnotification_foreground_notification_test.xml" value="0.25790754257907544" />
+        <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/layout/nbnotification_foreground_notification_text.xml" value="0.38969873663751214" />
         <entry key="..\:/androidProject/github/NBNotification/NBNotification/src/main/res/layout/notification_item.xml" value="0.221875" />
         <entry key="..\:/androidProject/github/NBNotification/app/src/main/res/layout/activity_main.xml" value="0.221875" />
+        <entry key="..\:/androidProject/github/NBNotification/app/src/main/res/layout/activity_test.xml" value="0.20729166666666668" />
         <entry key="..\:/androidProject/github/NBNotification/app/src/main/res/layout/notification_item.xml" value="0.18333333333333332" />
       </map>
     </option>
