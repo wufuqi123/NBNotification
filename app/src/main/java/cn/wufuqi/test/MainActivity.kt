@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         index += 1
         val build = NBNotification.Builder().apply {
             title = "换电提醒"
-            notificationType = NBNotificationType.FRONT
+            notificationType = NBNotificationType.FRONT_INTERLACE_NOTIFICATION_BAR
             content = "[上汽大通]到你换电啦！请点击大屏上的开始换电，并将车辆停在换电房中的换电车位。未在${index}分钟内到达换电站将视作过号哦~"
             intent = Intent(this@MainActivity, TestActivity::class.java)
         }.build()
