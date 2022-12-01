@@ -43,10 +43,10 @@
 
 
 ## 后台通知演示
-#### ![后台通知](https://raw.githubusercontent.com/wufuqi123/NBNotification/master/img/bar.jpg)
+#### ![后台通知](https://raw.githubusercontent.com/wufuqi123/NBNotification/master/img/bar.png)
 
 
 ## 前台通知演示
-#### ![前台通知](https://raw.githubusercontent.com/wufuqi123/NBNotification/master/img/front.jpg)
+#### ![前台通知](https://raw.githubusercontent.com/wufuqi123/NBNotification/master/img/front.png)
 
 
