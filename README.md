@@ -189,6 +189,9 @@
         // 把前台通知显示在最顶部的activity上。
         tfn.show()
     ```
+
+
+#### ![test运行效果](https://raw.githubusercontent.com/wufuqi123/NBNotification/master/img/test.png)
    
 
 

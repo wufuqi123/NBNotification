@@ -15,6 +15,6 @@ class TestActivity: AppCompatActivity() {
         supportActionBar?.hide()
 
         val tfn = TestForegroundNotification()
-        tfn.show()
+        tfn.show(this)
     }
 }
