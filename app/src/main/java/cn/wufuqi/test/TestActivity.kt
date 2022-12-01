@@ -13,5 +13,8 @@ class TestActivity: AppCompatActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_test)
         supportActionBar?.hide()
+
+        val tfn = TestForegroundNotification()
+        tfn.show()
     }
 }
