@@ -43,8 +43,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation project(path: ':NBNotification')
+
     implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
     implementation 'cn.wufuqi:EasyTimer:1.0.1'
     implementation 'cn.wufuqi:ConvertMainThread:1.0.1'
+
+//    implementation project(path: ':NBNotification')
+    implementation 'cn.wufuqi:NBNotification:1.0.2'
 }

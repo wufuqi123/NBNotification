@@ -152,7 +152,14 @@ open class ForegroundNotification : ForegroundNotificationInterface {
 
     @CallSuper
     override fun show() {
-        show(ActivityUtils.getTopActivity())
+        val a = ActivityUtils.getTopActivity()
+        if (a == null) {
+            mEasyTimer.scheduleOneUI(200) {
+                show()
+            }
+            return
+        }
+        show(a)
     }
 
 

@@ -86,7 +86,7 @@ object ActivityUtils {
      * @param context
      * @return
      */
-    fun getTopActivity(): Activity {
+    fun getTopActivity(): Activity? {
         val activityList = getActivitiesByReflect()
 
         val topName = getTopActivityClassName()
@@ -94,6 +94,9 @@ object ActivityUtils {
             if (it::class.java.name == topName) {
                 return it
             }
+        }
+        if(activityList.isEmpty()){
+           return null
         }
         return activityList[activityList.size - 1]
     }
