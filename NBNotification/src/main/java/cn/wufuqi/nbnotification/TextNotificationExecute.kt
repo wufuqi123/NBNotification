@@ -1,5 +1,6 @@
 package cn.wufuqi.nbnotification
 
+import android.util.Log
 import cn.wufuqi.nbnotification.notification.bar.NotificationBar
 import cn.wufuqi.nbnotification.notification.foreground.ForegroundNotificationText
 import cn.wufuqi.nbnotification.utils.AppUtils
@@ -19,9 +20,12 @@ object TextNotificationExecute {
                 NotificationBar.notify(builder)
             }
             NBNotificationType.FRONT_INTERLACE_NOTIFICATION_BAR -> {
+
                 if (!AppUtils.isRunningForeground()) {
+                    Log.i("TextNotificationExecute","后台通知")
                     NotificationBar.notify(builder)
                 } else {
+                    Log.i("TextNotificationExecute","前台通知")
                     ForegroundNotificationText.notify(builder)
                 }
             }
